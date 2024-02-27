@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyhouse Automation System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.1.0/dist/progressbar.min.js"></script> <!-- Add ProgressBar.js library -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e6e6fa; /* Light purple background color */
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .container {
+            max-width: 1200px; /* Adjusted max-width for larger container */
+            margin: 20px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Three columns */
+            grid-gap: 20px;
+            justify-items: center; /* Align items horizontally at the center */
+        }
+
+        .row-2 {
+            display: flex;
+            justify-content: center; /* Align items horizontally at the center */
+            grid-column: 1 / -1; /* Span across all columns */
+            grid-gap: 20px;
+        }
+
+        .sensor {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px; /* Set a fixed width for each card */
+        }
+
+        .sensor h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .sensor .data {
+            font-size: 36px;
+            color: #007bff;
+        }
+
+        .gauge-container {
+            width: 200px;
+            height: 200px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 200px; /* Set a fixed height for the chart */
+        }
+
+        .bar-graph {
+            width: 100%;
+            height: 200px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden; /* Add overflow property */
+        }
+
+        .bar {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            background-color: #007bff;
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease-in-out;
+        }
+
+        .bar-labels {
+            position: absolute;
+            bottom: -20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toggle-btn {
+            width: 50px;
+            height: 25px;
+            background-color: #ccc;
+            border-radius: 25px;
+            position: relative;
+            cursor: pointer;
+            display: block;
+        }
+
+        .toggle-btn:before {
+            content: "";
+            display: block;
+            width: 25px;
+            height: 25px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s;
+        }
+
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        input[type="checkbox"]:checked + .toggle-btn:before {
+            transform: translateX(25px);
+        }
+
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .dark-mode .sensor {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .dark-mode .container {
+            background-color: #808080; /* Grey background color */
+        }
+
+        /* Neon theme for dark mode */
+        .dark-mode .toggle-btn {
+            background-color: #4CAF50; /* Neon green */
+        }
+
+        .dark-mode .toggle-btn:before {
+            background-color: #4CAF50; /* Neon green */
+        }
+
+        .dark-mode-label {
+            color: #fff;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        /* Logo image */
+        .logo {
+            position: absolute;
+            top: 0px;
+            left: 20px;
+            width: 100px; /* Adjust width as needed */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo image -->
+    <img src="C:\Users\Asjad\Desktop\logo pccoer.png" alt="Logo" class="logo">
+
+    <h1>Polyhouse Automation System</h1>
+
+    <div class="container">
+        <div class="sensor">
+            <h2>Temperature</h2>
+            <div class="gauge-container" id="temperatureGauge"></div> <!-- Circular gauge will be rendered here -->
+        </div>
+        <div class="sensor">
+            <h2>Sensor 2 (Time Series Graph)</h2>
+            <div class="chart-container">
+                <canvas id="sensor2Chart"></canvas> <!-- Chart.js will render the graph here -->
+            </div>
+        </div>
+        <div class="sensor">
+            <h2>Sensor 3 (Bar Graph)</h2>
+            <div class="bar-graph" id="sensor3">
+                <div class="bar" style="height: 60%;" data-value="60"></div>
+                <div class="bar" style="height: 40%;" data-value="40"></div>
+                <div class="bar" style="height: 80%;" data-value="80"></div>
+                <!-- Add more bars as needed -->
+                <div class="bar-labels">
+                    <span>Label 1</span>
+                    <span>Label 2</span>
+                    <span>Label 3</span>
+                    <!-- Add more labels as needed -->
+                </div>
+            </div>
+        </div>
+        <div class="row-2">
+            <div class="sensor">
+                <h2>Sensor 4 (Data)</h2>
+                <div class="data" id="sensor4">Placeholder Data</div>
+            </div>
+            <div class="sensor">
+                <h2>Sensor 5 (Data)</h2>
+                <div class="data" id="sensor5">Placeholder Data</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dark-mode-toggle">
+        <input type="checkbox" id="darkModeToggle">
+        <label for="darkModeToggle" class="toggle-btn"></label>
+        <div class="dark-mode-label">Light Mode</div> <!-- Initially shows Light mode -->
+    </div>
+
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const container = document.querySelector('.container');
+        const darkModeLabel = document.querySelector('.dark-mode-label');
+
+        darkModeToggle.addEventListener('change', () => {
+            container.classList.toggle('dark-mode');
+            if (container.classList.contains('dark-mode')) {
+                darkModeLabel.textContent = 'Dark Mode';
+            } else {
+                darkModeLabel.textContent = 'Light Mode';
+            }
+        });
+
+        // Create circular gauge for temperature
+        const temperatureGauge = new ProgressBar.Circle('#temperatureGauge', {
+            color: '#007bff',
+            strokeWidth: 10,
+            trailWidth: 10,
+            duration: 2000, // Animation duration in milliseconds
+            text: {
+                value: 'Placeholder Data'
+            },
+            step: function(state, circle) {
+                circle.setText(circle.value());
+            }
+        });
+
+        temperatureGauge.animate(0.7); // Animate to 50% (example)
+
+        // Sample data for the chart
+        const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'Sensor Data',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                data: [65, 59, 80, 81, 56, 55, 40],
+            }]
+        };
+
+        // Create the chart
+        const ctx = document.getElementById('sensor2Chart').getContext('2d');
+        const sensor2Chart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {}
+        });
+    </script>
+</body>
+</html>
